@@ -32,21 +32,16 @@ jobs:
       - name: Pack
         run: dotnet pack ./KZ.FileHash/KZ.FileHash.csproj --configuration Release --no-build --output ./artifacts
 
-      - name: Upload package artifacts
-        uses: actions/upload-artifact@v4
+      - name: NuGet login
+        uses: NuGet/login@v1
+        id: login
         with:
-          name: KZ.FileHash-package
-          path: ./artifacts/*
-      #- name: NuGet login
-      #  uses: NuGet/login@v1
-      #  id: login
-      #  with:
-      #    user: ${{ secrets.NUGET_USER }}
+          user: ${{ secrets.NUGET_USER }}
 
-      #- name: Push package
-      #  run: >
-      #    dotnet nuget push
-      #    ./artifacts/KZ.FileHash.*.nupkg
-      #    --api-key ${{ steps.login.outputs.NUGET_API_KEY }}
-      #    --source https://api.nuget.org/v3/index.json
-      #    --skip-duplicate
+      - name: Push package
+        run: >
+          dotnet nuget push
+          ./artifacts/KZ.FileHash.*.nupkg
+          --api-key ${{ steps.login.outputs.NUGET_API_KEY }}
+          --source https://api.nuget.org/v3/index.json
+          --skip-duplicate
