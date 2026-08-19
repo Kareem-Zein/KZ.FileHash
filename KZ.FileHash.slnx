@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/tests/">
+    <Project Path="KZ.HileHash.Tests/KZ.FileHash.Tests.csproj" />
+  </Folder>
+  <Project Path="KZ.FileHash/KZ.FileHash.csproj" />
+</Solution>
