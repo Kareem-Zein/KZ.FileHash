@@ -47,22 +47,6 @@ jobs:
         run: |
           mkdir -p benchmark-results
           
-          # تشغيل على .NET 8
-          echo "=== Running on .NET 8.0 ==="
-          dotnet run --project KZ.FileHash.Benchmarks/KZ.FileHash.Benchmarks.csproj -c Release -f net8.0 \
-            --filter "*" \
-            --exporters Markdown \
-            --artifacts ./benchmark-results/net8.0
-
-          # تشغيل على .NET 9
-          echo "=== Running on .NET 9.0 ==="
-          dotnet run --project KZ.FileHash.Benchmarks/KZ.FileHash.Benchmarks.csproj -c Release -f net9.0 \
-            --filter "*" \
-            --exporters Markdown \
-            --artifacts ./benchmark-results/net9.0
-
-          # تشغيل على .NET 10
-          echo "=== Running on .NET 10.0 ==="
           dotnet run --project KZ.FileHash.Benchmarks/KZ.FileHash.Benchmarks.csproj -c Release -f net10.0 \
             --filter "*" \
             --exporters Markdown \
