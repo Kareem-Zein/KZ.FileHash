@@ -8,7 +8,7 @@
     <IncludeSymbols>True</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
-	<Version>1.0.1</Version>
+	<Version>1.1.0</Version>
 	<Title>KZ.FileHash</Title>
 	<Description>A lightweight .NET library for calculating cryptographic hashes of files and streams asynchronously.</Description>
 	<PackageTags>hash;hashing;cryptography;md5;sha1;sha256;sha384;sha512;sha3;sha3-256;sha3-384;sha3-512;file;stream;integrity;verification</PackageTags>
@@ -18,8 +18,8 @@
 	<Copyright>Copyright © 2026 Kareem Zein</Copyright>
 	<PackageProjectUrl>https://github.com/Kareem-Zein/KZ.FileHash</PackageProjectUrl>
 	<PackageId>KZ.FileHash</PackageId>
-	<AssemblyVersion>1.0.1</AssemblyVersion>
-	<FileVersion>1.0.1</FileVersion>
+	<AssemblyVersion>1.1.0</AssemblyVersion>
+	<FileVersion>1.1.0</FileVersion>
 	<NeutralLanguage>en</NeutralLanguage>
 	<RepositoryType>git</RepositoryType>
 	<EnablePackageValidation>true</EnablePackageValidation>
