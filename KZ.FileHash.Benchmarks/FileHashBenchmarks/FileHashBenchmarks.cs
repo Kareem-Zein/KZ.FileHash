@@ -1,13 +1,9 @@
 ﻿using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Jobs;
 using KZ.FileHash.Engine;
 using System.Security.Cryptography;
 
 namespace KZ.FileHash.Benchmarks.FileHashBenchmarks
 {
-    [SimpleJob(runtimeMoniker: RuntimeMoniker.Net10_0)]
-    [SimpleJob(runtimeMoniker: RuntimeMoniker.Net90)]
-    [SimpleJob(runtimeMoniker: RuntimeMoniker.Net80)]
     [MemoryDiagnoser]
     public class FileHashBenchmarks
     {
@@ -15,9 +11,9 @@ namespace KZ.FileHash.Benchmarks.FileHashBenchmarks
         private const int Mega = 1024 * 1024;
         private const int Mega16 = 16 * Mega;
         private const int Mega100 = 100 * Mega;
-        private const int Giga = 1024 * Mega;
+        private const int Mega500 = 500 * Mega;
 
-        [Params(Mega, Mega16, Mega100, Giga)]
+        [Params(Mega, Mega16, Mega100, Mega500)]
         public long FileSize { set; get; }
 
         [Params(KB64, Mega)]
