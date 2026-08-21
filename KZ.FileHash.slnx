@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/benchmarks/">
+    <Project Path="KZ.FileHash.Benchmarks/KZ.FileHash.Benchmarks.csproj" Id="64431c5f-3330-4a63-b9dc-70a360312498" />
+  </Folder>
   <Folder Name="/tests/">
     <Project Path="KZ.HileHash.Tests/KZ.FileHash.Tests.csproj" />
   </Folder>

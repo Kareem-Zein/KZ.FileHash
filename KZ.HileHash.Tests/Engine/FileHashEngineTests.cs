@@ -320,6 +320,32 @@ namespace KZ.HileHash.Tests.Engine
         }
 
         [Test]
+        public async Task CalculateHashAsync_WhenChangeBufferSize_ReturnsExpectedHash()
+        {
+            await using var stream = new MemoryStream(TestData);
+
+            var engine = new FileHashEngine(HashAlgorithmType.SHA256);
+
+            var result = await engine.CalculateHashAsync(stream);
+
+            var expectedHash =
+                Convert.ToHexString(SHA256.HashData(TestData));
+
+            Assert.That(
+                result[HashAlgorithmType.SHA256],
+                Is.EqualTo(expectedHash));
+
+            var engineWithBufferSize = new FileHashEngine(HashAlgorithmType.SHA256, 1 /*1 Byte*/);
+
+            stream.Position = 0;
+            var result2 = await engineWithBufferSize.CalculateHashAsync(stream);
+
+            Assert.That(
+               result2[HashAlgorithmType.SHA256],
+               Is.EqualTo(expectedHash));
+        }
+
+        [Test]
         public async Task CalculateHashAsync_WhenStreamPositionIsNotZero_HashesFromCurrentPosition()
         {
             var data = Encoding.UTF8.GetBytes("ABCDEF");

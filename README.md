@@ -2,7 +2,10 @@
 
 [![NuGet](https://img.shields.io/nuget/v/KZ.FileHash.svg)](https://www.nuget.org/packages/KZ.FileHash/)
 [![NuGet Downloads](https://img.shields.io/nuget/dt/KZ.FileHash.svg)](https://www.nuget.org/packages/KZ.FileHash/)
+[![.NET](https://img.shields.io/badge/.NET-8.0%20%7C%209.0%20%7C%2010.0-blue)](https://dotnet.microsoft.com/)
+
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Benchmarks](https://img.shields.io/badge/Benchmarks-Passing-brightgreen)](https://github.com/Kareem-Zein/KZ.FileHash/actions/workflows/benchmarks.yml)
 
 **KZ.FileHash** is a lightweight .NET library for calculating cryptographic hashes of files and streams asynchronously.
 
@@ -11,6 +14,12 @@ It is designed for applications that need reliable and memory-efficient file has
 The library supports multiple hashing algorithms, progress reporting, cancellation, file streams, and non-seekable streams.
 
 ---
+
+<!-- BENCHMARK-START -->
+## 📊 Performance Benchmarks
+
+*Benchmarks will appear here automatically.*
+<!-- BENCHMARK-END -->
 
 ## Features
 
@@ -27,6 +36,9 @@ The library supports multiple hashing algorithms, progress reporting, cancellati
 - Returns hexadecimal hash strings.
 - Supports combining multiple algorithms using `[Flags]`.
 - Compatible with modern .NET applications.
+- Supports **.NET 8.0, .NET 9.0, and .NET 10.0** (multi-targeting).
+- **Customizable buffer size** – You can fine-tune the internal buffer for your specific environment.
+- Default buffer size **64 KB** – optimized to avoid the Large Object Heap (LOH) while delivering great performance.
 
 ---
 
@@ -57,6 +69,15 @@ Install the package from NuGet:
 dotnet add package KZ.FileHash
 ```
 ---
+
+
+## Requirements & Defaults
+
+| Feature | Details |
+| :--- | :--- |
+| **Supported Runtimes** | .NET 8.0, .NET 9.0, .NET 10.0 |
+| **Default Buffer Size** | **64 KB** – chosen as a power of two (2^16) for optimal system cache alignment, while staying below the 85 KB LOH threshold to minimize GC pressure. |
+| **Buffer Customization** | You can set any buffer size > 0. The library trusts your expertise – no hard upper limit is enforced. |
 
 ## Quick Start
 

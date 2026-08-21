@@ -20,7 +20,7 @@ namespace KZ.FileHash.Engine
     {
         private readonly HashAlgorithmType _algorithms;
 
-        private const int BufferSize = 80 * 1024;
+        private readonly int _bufferSize = 64 * 1024;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FileHashEngine"/> class
@@ -39,6 +39,34 @@ namespace KZ.FileHash.Engine
             ValidateAlgorithms(algorithms);
 
             _algorithms = algorithms;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FileHashEngine"/> class
+        /// with the specified hashing algorithms and buffer size.
+        /// </summary>
+        /// <param name="algorithms">
+        /// One or more hashing algorithms to calculate.
+        /// Multiple algorithms can be combined using the bitwise OR operator.
+        /// </param>
+        /// <param name="bufferSize">
+        /// The size of the internal buffer in bytes. Must be greater than zero.
+        /// </param>
+        /// <exception cref="ArgumentException">
+        /// Thrown when <paramref name="algorithms"/> is <see cref="HashAlgorithmType.None"/>
+        /// or contains unsupported flags.
+        /// </exception>
+        public FileHashEngine(HashAlgorithmType algorithms, int bufferSize)
+            : this(algorithms)
+        {
+            ValidateBufferSize(bufferSize);
+            _bufferSize = bufferSize;
+        }
+
+        private static void ValidateBufferSize(int bufferSize)
+        {
+            if (bufferSize <= 0)
+                throw new ArgumentException($"The buffer size must be greater than 0.", nameof(bufferSize));
         }
 
         private static void ValidateAlgorithms(HashAlgorithmType algorithms)
@@ -99,7 +127,7 @@ namespace KZ.FileHash.Engine
         {
             ArgumentNullException.ThrowIfNullOrWhiteSpace(filePath);
 
-            await using (var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read, BufferSize, FileOptions.Asynchronous | FileOptions.SequentialScan))
+            await using (var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read, _bufferSize, FileOptions.Asynchronous | FileOptions.SequentialScan))
             {
                 return await CalculateContentHashAsync(fileStream, 0, progress, cancellationToken).ConfigureAwait(false);
             }
@@ -180,7 +208,7 @@ namespace KZ.FileHash.Engine
                 CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            var buffer = ArrayPool<byte>.Shared.Rent(BufferSize);
+            var buffer = ArrayPool<byte>.Shared.Rent(_bufferSize);
             var incrementalHashes = InitializeIncrementalHashes();
             long? totalLength = null;
 
@@ -204,7 +232,7 @@ namespace KZ.FileHash.Engine
                 if (progress is not null)
                     progress.Report(0);
 
-                while ((bytesRead = await stream.ReadAsync(buffer.AsMemory(0, BufferSize), cancellationToken).ConfigureAwait(false)) > 0)
+                while ((bytesRead = await stream.ReadAsync(buffer.AsMemory(0, _bufferSize), cancellationToken).ConfigureAwait(false)) > 0)
                 {
                     AppendData(incrementalHashes, buffer.AsSpan(0, bytesRead));
                     totalBytesRead += bytesRead;
