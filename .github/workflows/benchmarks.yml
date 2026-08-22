@@ -13,33 +13,26 @@ jobs:
     timeout-minutes: 60
 
     steps:
-      # 1. تحميل الكود من المستودع
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: List generated benchmark files
-              run: |
-                echo "Generated benchmark files:"
-                find benchmark-results -type f -print
+        run: |
+          echo "Generated benchmark files:"
+          find benchmark-results -type f -print
 
-      # 2. إعداد .NET SDKs المدعومة
       - name: Setup .NET SDKs
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |
-            8.0.x
-            9.0.x
             10.0.x
 
-      # 3. استعادة الحزم
       - name: Restore dependencies
         run: dotnet restore
 
-      # 4. بناء المشروع في وضع Release
       - name: Build solution
         run: dotnet build -c Release --no-restore
 
-      # 5. تشغيل الـ Benchmarks
       - name: Run benchmarks
         run: |
           dotnet run \
@@ -51,13 +44,11 @@ jobs:
             --exporters Markdown \
             --artifacts ./benchmark-results
 
-      # 6. عرض الملفات المُنشأة
       - name: List generated benchmark files
         run: |
           echo "Generated benchmark files:"
           find benchmark-results -type f -print
 
-      # 7. رفع النتائج كـ Artifact
       - name: Upload benchmark results
         uses: actions/upload-artifact@v4
         with:
@@ -66,7 +57,6 @@ jobs:
           retention-days: 30
           if-no-files-found: error
 
-      # 8. تحديث README فقط عند Push على main
       - name: Update README with latest results
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
@@ -127,7 +117,6 @@ jobs:
             echo "<!-- BENCHMARK-END -->"
           } >> README.md
 
-      # 9. Commit التغييرات
       - name: Commit and push README changes
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
