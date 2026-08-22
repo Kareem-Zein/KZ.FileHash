@@ -4,6 +4,8 @@ using System.Security.Cryptography;
 
 namespace KZ.FileHash.Benchmarks.FileHashBenchmarks
 {
+    [JsonExporterAttribute.Full]
+    [JsonExporterAttribute.FullCompressed]
     [MemoryDiagnoser]
     public class FileHashBenchmarks
     {
