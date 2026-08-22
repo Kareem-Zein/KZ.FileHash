@@ -16,9 +16,13 @@ The library supports multiple hashing algorithms, progress reporting, cancellati
 ---
 
 
-## 📊 Performance Benchmarks
-
-<!-- github-benchmark-action-comment -->
+## 🚀 Performance & Benchmarks
+ 
+We continuously monitor execution speed and memory allocations using **BenchmarkDotNet** and **GitHub Actions**.
+ 
+[![Benchmarks Chart](https://img.shields.io/badge/Benchmarks-View_Interactive_Chart-2ea44f?style=for-the-badge&logo=github)](https://kareem-zein.github.io/KZ.FileHash/dev/bench/)
+ 
+> 📊 Click the badge above to view the full interactive performance graphs across commits.
 
 ## Features
 

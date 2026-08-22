@@ -4,8 +4,6 @@ using System.Security.Cryptography;
 
 namespace KZ.FileHash.Benchmarks.FileHashBenchmarks
 {
-    [JsonExporterAttribute.Full]
-    [JsonExporterAttribute.FullCompressed]
     [MemoryDiagnoser]
     public class FileHashBenchmarks
     {
@@ -15,10 +13,10 @@ namespace KZ.FileHash.Benchmarks.FileHashBenchmarks
         private const int Mega100 = 100 * Mega;
         private const int Mega500 = 500 * Mega;
 
-        [Params(Mega)]
+        [Params(Mega, Mega16, Mega100, Mega500)]
         public long FileSize { set; get; }
 
-        [Params(KB64)]
+        [Params(KB64, Mega)]
         public int BufferSize { set; get; }
 
         private string _filePath = string.Empty;
@@ -49,7 +47,7 @@ namespace KZ.FileHash.Benchmarks.FileHashBenchmarks
         [Benchmark]
         public async Task<string> KZFileHashAllAlgorithms()
         {
-            var engine = new FileHashEngine(Enums.HashAlgorithmType.MD5 | 
+            var engine = new FileHashEngine(Enums.HashAlgorithmType.MD5 |
                 Enums.HashAlgorithmType.SHA1 |
                 Enums.HashAlgorithmType.SHA256 | Enums.HashAlgorithmType.SHA384 | Enums.HashAlgorithmType.SHA512 |
                 Enums.HashAlgorithmType.SHA3_256 | Enums.HashAlgorithmType.SHA3_384 | Enums.HashAlgorithmType.SHA3_512
@@ -59,83 +57,83 @@ namespace KZ.FileHash.Benchmarks.FileHashBenchmarks
             return hashes[Enums.HashAlgorithmType.SHA512];
         }
 
-        //[Benchmark]
-        //public async Task<string> TraditionalReadAllBytesAsync()
-        //{
-        //    var bytes = await File.ReadAllBytesAsync(_filePath);
-        //    using var sha = SHA512.Create();
-        //    return Convert.ToHexString(sha.ComputeHash(bytes));
-        //}
-        
-        //[Benchmark]
-        //public async Task<string[]> TraditionalReadAllBytesAsyncMultiAlgorithm()
-        //{
-        //    var bytes = await File.ReadAllBytesAsync(_filePath);
+        [Benchmark]
+        public async Task<string> TraditionalReadAllBytesAsync()
+        {
+            var bytes = await File.ReadAllBytesAsync(_filePath);
+            using var sha = SHA512.Create();
+            return Convert.ToHexString(sha.ComputeHash(bytes));
+        }
 
-        //    using var md5 = MD5.Create();
-        //    using var sha1 = SHA1.Create();
-        //    using var sha512 = SHA512.Create();
-        //    using var sha256 = SHA256.Create();
-        //    using var sha384 = SHA384.Create();
-        //    using var sha3_256 = SHA3_256.Create();
-        //    using var sha3_384 = SHA3_384.Create();
-        //    using var sha3_512 = SHA3_512.Create();
+        [Benchmark]
+        public async Task<string[]> TraditionalReadAllBytesAsyncMultiAlgorithm()
+        {
+            var bytes = await File.ReadAllBytesAsync(_filePath);
 
-        //    return
-        //    [
-        //        Convert.ToHexString(md5.ComputeHash(bytes)),
-        //        Convert.ToHexString(sha1.ComputeHash(bytes)),
-        //        Convert.ToHexString(sha512.ComputeHash(bytes)),
-        //        Convert.ToHexString(sha256.ComputeHash(bytes)),
-        //        Convert.ToHexString(sha384.ComputeHash(bytes)),
-        //        Convert.ToHexString(sha3_256.ComputeHash(bytes)),
-        //        Convert.ToHexString(sha3_384.ComputeHash(bytes)),
-        //        Convert.ToHexString(sha3_512.ComputeHash(bytes))
-        //    ];
-        //}
+            using var md5 = MD5.Create();
+            using var sha1 = SHA1.Create();
+            using var sha512 = SHA512.Create();
+            using var sha256 = SHA256.Create();
+            using var sha384 = SHA384.Create();
+            using var sha3_256 = SHA3_256.Create();
+            using var sha3_384 = SHA3_384.Create();
+            using var sha3_512 = SHA3_512.Create();
 
-        //[Benchmark]
-        //public async Task<string> TraditionalStreamWithComputeHashAsync()
-        //{
-        //    using (var stream = File.OpenRead(_filePath))
-        //    {
-        //        using var sha = SHA512.Create();
-        //        return Convert.ToHexString(await sha.ComputeHashAsync(stream));
-        //    }
-        //}
+            return
+            [
+                Convert.ToHexString(md5.ComputeHash(bytes)),
+                Convert.ToHexString(sha1.ComputeHash(bytes)),
+                Convert.ToHexString(sha512.ComputeHash(bytes)),
+                Convert.ToHexString(sha256.ComputeHash(bytes)),
+                Convert.ToHexString(sha384.ComputeHash(bytes)),
+                Convert.ToHexString(sha3_256.ComputeHash(bytes)),
+                Convert.ToHexString(sha3_384.ComputeHash(bytes)),
+                Convert.ToHexString(sha3_512.ComputeHash(bytes))
+            ];
+        }
 
-        //private async Task<string> CalculateHashAsync(HashAlgorithm algorithm)
-        //{
-        //    await using var stream = File.OpenRead(_filePath);
+        [Benchmark]
+        public async Task<string> TraditionalStreamWithComputeHashAsync()
+        {
+            using (var stream = File.OpenRead(_filePath))
+            {
+                using var sha = SHA512.Create();
+                return Convert.ToHexString(await sha.ComputeHashAsync(stream));
+            }
+        }
 
-        //    return Convert.ToHexString(
-        //        await algorithm.ComputeHashAsync(stream)
-        //    );
-        //}
+        private async Task<string> CalculateHashAsync(HashAlgorithm algorithm)
+        {
+            await using var stream = File.OpenRead(_filePath);
 
-        //[Benchmark]
-        //public async Task<string[]> TraditionalStreamWithComputeHashAsyncMultiAlgorithm()
-        //{
-        //    using var md5 = MD5.Create();
-        //    using var sha1 = SHA1.Create();
-        //    using var sha512 = SHA512.Create();
-        //    using var sha256 = SHA256.Create();
-        //    using var sha384 = SHA384.Create();
-        //    using var sha3_256 = SHA3_256.Create();
-        //    using var sha3_384 = SHA3_384.Create();
-        //    using var sha3_512 = SHA3_512.Create();
-        //    string[] result = new string[8];
-        //    int index = 0;
-        //    result[index++] = await CalculateHashAsync(md5);
-        //    result[index++] = await CalculateHashAsync(sha1);
-        //    result[index++] = await CalculateHashAsync(sha512);
-        //    result[index++] = await CalculateHashAsync(sha256);
-        //    result[index++] = await CalculateHashAsync(sha384);
-        //    result[index++] = await CalculateHashAsync(sha3_256);
-        //    result[index++] = await CalculateHashAsync(sha3_384);
-        //    result[index++] = await CalculateHashAsync(sha3_512);
+            return Convert.ToHexString(
+                await algorithm.ComputeHashAsync(stream)
+            );
+        }
 
-        //    return result;
-        //}
+        [Benchmark]
+        public async Task<string[]> TraditionalStreamWithComputeHashAsyncMultiAlgorithm()
+        {
+            using var md5 = MD5.Create();
+            using var sha1 = SHA1.Create();
+            using var sha512 = SHA512.Create();
+            using var sha256 = SHA256.Create();
+            using var sha384 = SHA384.Create();
+            using var sha3_256 = SHA3_256.Create();
+            using var sha3_384 = SHA3_384.Create();
+            using var sha3_512 = SHA3_512.Create();
+            string[] result = new string[8];
+            int index = 0;
+            result[index++] = await CalculateHashAsync(md5);
+            result[index++] = await CalculateHashAsync(sha1);
+            result[index++] = await CalculateHashAsync(sha512);
+            result[index++] = await CalculateHashAsync(sha256);
+            result[index++] = await CalculateHashAsync(sha384);
+            result[index++] = await CalculateHashAsync(sha3_256);
+            result[index++] = await CalculateHashAsync(sha3_384);
+            result[index++] = await CalculateHashAsync(sha3_512);
+
+            return result;
+        }
     }
 }
