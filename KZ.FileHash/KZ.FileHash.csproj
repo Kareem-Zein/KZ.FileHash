@@ -25,7 +25,9 @@
 	<EnablePackageValidation>true</EnablePackageValidation>
 	<PublishRepositoryUrl>true</PublishRepositoryUrl>
 	<EmbedUntrackedSources>true</EmbedUntrackedSources>
-	<PackageReleaseNotes>$([System.IO.File]::ReadAllText("CHANGELOG.md"))</PackageReleaseNotes>
+	<PackageReleaseNotes>- Support for .NET 8.0 and .NET 9.0 (multi-targeting).
+- Customizable buffer size.
+- Default buffer size reduced from 80KB to 64KB.</PackageReleaseNotes>
   </PropertyGroup>
 
 	<ItemGroup>
