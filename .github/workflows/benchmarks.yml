@@ -1,15 +1,6 @@
 name: Performance Benchmarks
 
 on:
-  push:
-    branches: [main]
-
-  pull_request:
-    branches: [main]
-
-  schedule:
-    - cron: '0 0 * * 0' # كل يوم أحد منتصف الليل
-
   workflow_dispatch:
 
 permissions:
