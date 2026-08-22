@@ -25,6 +25,7 @@
 	<EnablePackageValidation>true</EnablePackageValidation>
 	<PublishRepositoryUrl>true</PublishRepositoryUrl>
 	<EmbedUntrackedSources>true</EmbedUntrackedSources>
+	<PackageReleaseNotes>$([System.IO.File]::ReadAllText("$(SolutionDir)CHANGELOG.md"))</PackageReleaseNotes>
   </PropertyGroup>
 
 	<ItemGroup>

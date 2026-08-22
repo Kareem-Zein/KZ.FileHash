@@ -15,6 +15,7 @@ The library supports multiple hashing algorithms, progress reporting, cancellati
 
 ---
 
+
 <!-- BENCHMARK-START -->
 ## 📊 Performance Benchmarks
 
@@ -134,6 +135,21 @@ var progress = new Progress<double>(value =>
 });
 
 var engine = new FileHashEngine(HashAlgorithmType.SHA256);
+
+var hashes = await engine.CalculateHashAsync(
+    "large-file.iso",
+    progress);
+```
+
+## Customize buffer size
+
+```csharp
+var progress = new Progress<double>(value =>
+{
+    Console.WriteLine($"{value:F2}%");
+});
+
+var engine = new FileHashEngine(HashAlgorithmType.SHA256, 1024 * 1024);
 
 var hashes = await engine.CalculateHashAsync(
     "large-file.iso",

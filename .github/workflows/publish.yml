@@ -4,8 +4,36 @@ on:
   workflow_dispatch:
 
 jobs:
-  publish:
+  test:
+    name: Test on .NET ${{ matrix.dotnet-version }}
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        dotnet-version: [ '8.0.x', '9.0.x', '10.0.x' ]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET ${{ matrix.dotnet-version }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ matrix.dotnet-version }}
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Run Unit Tests
+        run: dotnet test --configuration Release --no-build
+
+  publish:
+    name: Pack & Publish to NuGet
+    runs-on: ubuntu-latest
+    needs: test
 
     permissions:
       contents: read
@@ -15,22 +43,23 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup .NET
+      - name: Setup .NET 10
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
 
-      - name: Restore
+      - name: Restore dependencies
         run: dotnet restore
 
       - name: Build
         run: dotnet build --configuration Release --no-restore
 
-      - name: Test
-        run: dotnet test --configuration Release --no-build
-
-      - name: Pack
-        run: dotnet pack ./KZ.FileHash/KZ.FileHash.csproj --configuration Release --no-build --output ./artifacts
+      - name: Pack NuGet package
+        run: >
+          dotnet pack ./KZ.FileHash/KZ.FileHash.csproj
+          --configuration Release
+          --no-build
+          --output ./artifacts
 
       - name: NuGet login
         uses: NuGet/login@v1
@@ -38,7 +67,7 @@ jobs:
         with:
           user: ${{ secrets.NUGET_USER }}
 
-      - name: Push package
+      - name: Push package to NuGet.org
         run: >
           dotnet nuget push
           ./artifacts/KZ.FileHash.*.nupkg
