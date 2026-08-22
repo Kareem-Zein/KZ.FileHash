@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787366831845,
+  "lastUpdate": 1787367059391,
   "repoUrl": "https://github.com/Kareem-Zein/KZ.FileHash",
   "entries": {
     "KZ.FileHash Benchmark": [
@@ -68,6 +68,40 @@ window.BENCHMARK_DATA = {
             "value": 15775160.6625,
             "unit": "ns",
             "range": "± 53339.052763844316"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "Kareem Zein",
+            "username": "Kareem-Zein",
+            "email": "karkarem004@gmail.com"
+          },
+          "committer": {
+            "name": "Kareem Zein",
+            "username": "Kareem-Zein",
+            "email": "karkarem004@gmail.com"
+          },
+          "id": "16139cb6245d52cfc221bab16f8fb14800b13199",
+          "message": ".",
+          "timestamp": "2026-08-22T02:49:16Z",
+          "url": "https://github.com/Kareem-Zein/KZ.FileHash/commit/16139cb6245d52cfc221bab16f8fb14800b13199"
+        },
+        "date": 1787367058932,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "KZ.FileHash.Benchmarks.FileHashBenchmarks.FileHashBenchmarks.KZFileHashSingleAlgorithm(FileSize: 1048576, BufferSize: 65536)",
+            "value": 1661797.7663959705,
+            "unit": "ns",
+            "range": "± 83164.72746379575"
+          },
+          {
+            "name": "KZ.FileHash.Benchmarks.FileHashBenchmarks.FileHashBenchmarks.KZFileHashAllAlgorithms(FileSize: 1048576, BufferSize: 65536)",
+            "value": 15925509.547916668,
+            "unit": "ns",
+            "range": "± 55517.63547397668"
           }
         ]
       }
