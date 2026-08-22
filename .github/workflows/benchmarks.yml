@@ -29,7 +29,7 @@ jobs:
         with:
           name: KZ.FileHash Benchmark
           tool: 'benchmarkdotnet'
-          output-file-path: BenchmarkDotNet.Artifacts/results/KZ.FileHash-report-full-compressed.json
+          output-file-path: ../BenchmarkDotNet.Artifacts/results/KZ.FileHash-report-full-compressed.json
           github-token: ${{ secrets.GITHUB_TOKEN }}
           auto-push: true
           # Show alert with commit comment on detecting possible performance regression
