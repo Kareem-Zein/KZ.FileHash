@@ -16,11 +16,8 @@ The library supports multiple hashing algorithms, progress reporting, cancellati
 ---
 
 
-<!-- BENCHMARK-START -->
 ## 📊 Performance Benchmarks
-
-*Benchmarks will appear here automatically.*
-<!-- BENCHMARK-END -->
+<!-- github-benchmark-action-comment -->
 
 ## Features
 

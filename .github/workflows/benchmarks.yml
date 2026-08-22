@@ -7,7 +7,7 @@ permissions:
  
 jobs:
   benchmark:
-    name: Run KX.FileHash.Benchmarks
+    name: Run KZ.FileHash.Benchmarks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -30,18 +30,4 @@ jobs:
           comment-on-alert: true
           fail-on-alert: true
           alert-comment-cc-users: '@ktrz'
-
-      # - name: Store benchmark result - separate results repo
-      #   uses: rhysd/github-action-benchmark@v1
-      #   with:
-      #     name: KZ.FileHash Benchmark
-      #     tool: 'benchmarkdotnet'
-      #     output-file-path: Benchmarks/results/KZ.FileHash-report-full-compressed.json
-      #     github-token: ${{ secrets.BENCHMARK_ACTION_BOT_TOKEN }}
-      #     auto-push: true
-      #     # Show alert with commit comment on detecting possible performance regression
-      #     alert-threshold: '200%'
-      #     comment-on-alert: true
-      #     fail-on-alert: true
-      #     alert-comment-cc-users: '@ktrz'
-      #     gh-repository: 'github.com/benchmark-action/github-action-benchmark-results'
+          summary-always: true
