@@ -1,5 +1,4 @@
-name: Performance Benchmarks
-
+name: Benchmark performance
 on:
   workflow_dispatch:
 
@@ -8,125 +7,45 @@ permissions:
 
 jobs:
   benchmark:
-    name: Run Benchmarks
+    name: Run KX.FileHash.Benchmarks
     runs-on: ubuntu-latest
-    timeout-minutes: 60
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: List generated benchmark files
-        run: |
-          echo "Generated benchmark files:"
-          find benchmark-results -type f -print
-
-      - name: Setup .NET SDKs
-        uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: |
-            10.0.x
+          dotnet-version: '10.0.x'
+      - name: Run benchmark
+        run: dotnet run \
+          --project KZ.FileHash.Benchmarks/KZ.FileHash.Benchmarks.csproj \
+          -c Release \
+          -f net10.0 \
+          --exporters json --filter '*'
 
-      - name: Restore dependencies
-        run: dotnet restore
-
-      - name: Build solution
-        run: dotnet build -c Release --no-restore
-
-      - name: Run benchmarks
-        run: |
-          dotnet run \
-            --project KZ.FileHash.Benchmarks/KZ.FileHash.Benchmarks.csproj \
-            -c Release \
-            -f net10.0 \
-            -- \
-            --filter "*" \
-            --exporters Markdown \
-            --artifacts ./benchmark-results
-
-      - name: List generated benchmark files
-        run: |
-          echo "Generated benchmark files:"
-          find benchmark-results -type f -print
-
-      - name: Upload benchmark results
-        uses: actions/upload-artifact@v4
+      - name: Store benchmark result
+        uses: rhysd/github-action-benchmark@v1
         with:
-          name: benchmark-reports
-          path: benchmark-results/**/*.md
-          retention-days: 30
-          if-no-files-found: error
+          name: KZ.FileHash Benchmark
+          tool: 'benchmarkdotnet'
+          output-file-path: Benchmarks/results/KZ.FileHash-report-full-compressed.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: true
+          # Show alert with commit comment on detecting possible performance regression
+          alert-threshold: '200%'
+          comment-on-alert: true
+          fail-on-alert: true
+          alert-comment-cc-users: '@ktrz'
 
-      - name: Update README with latest results
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: |
-          REPORT_FILE=$(find benchmark-results \
-            -type f \
-            -name '*-report-github.md' \
-            -print0 |
-            xargs -0 ls -t 2>/dev/null |
-            head -1)
-
-          if [ -z "$REPORT_FILE" ]; then
-            echo "No GitHub Markdown report found."
-            exit 1
-          fi
-
-          echo "Found report: $REPORT_FILE"
-
-          START=$(grep -n "^| Method" "$REPORT_FILE" | head -1 | cut -d: -f1)
-
-          if [ -z "$START" ]; then
-            echo "Benchmark table not found in report."
-            exit 1
-          fi
-
-          END=$(tail -n +"$START" "$REPORT_FILE" |
-            grep -n "^$" |
-            head -1 |
-            cut -d: -f1)
-
-          if [ -z "$END" ]; then
-            END=$(wc -l < "$REPORT_FILE")
-          else
-            END=$((START + END - 1))
-          fi
-
-          TABLE=$(sed -n "${START},${END}p" "$REPORT_FILE")
-
-          if [ ! -f "README.md" ]; then
-            echo "README.md not found."
-            exit 1
-          fi
-
-          # حذف نتائج الـ Benchmark القديمة
-          sed -i '/<!-- BENCHMARK-START -->/,/<!-- BENCHMARK-END -->/d' README.md
-
-          # إضافة النتائج الجديدة
-          {
-            echo
-            echo "<!-- BENCHMARK-START -->"
-            echo "## 📊 Performance Benchmarks"
-            echo
-            echo "*Automatically updated on: $(date -u +"%Y-%m-%d %H:%M UTC")*"
-            echo
-            echo "$TABLE"
-            echo
-            echo "> **Memory usage comparison:** KZ.FileHash uses significantly less memory than traditional methods that load the entire file into memory."
-            echo
-            echo "<!-- BENCHMARK-END -->"
-          } >> README.md
-
-      - name: Commit and push README changes
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: |
-          if git diff --quiet README.md; then
-            echo "No changes to README.md"
-          else
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-            git add README.md
-            git commit -m "docs: update benchmark results"
-            git push
-          fi
+      # - name: Store benchmark result - separate results repo
+      #   uses: rhysd/github-action-benchmark@v1
+      #   with:
+      #     name: KZ.FileHash Benchmark
+      #     tool: 'benchmarkdotnet'
+      #     output-file-path: Benchmarks/results/KZ.FileHash-report-full-compressed.json
+      #     github-token: ${{ secrets.BENCHMARK_ACTION_BOT_TOKEN }}
+      #     auto-push: true
+      #     # Show alert with commit comment on detecting possible performance regression
+      #     alert-threshold: '200%'
+      #     comment-on-alert: true
+      #     fail-on-alert: true
+      #     alert-comment-cc-users: '@ktrz'
+      #     gh-repository: 'github.com/benchmark-action/github-action-benchmark-results'
