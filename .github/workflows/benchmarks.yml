@@ -26,6 +26,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: List generated benchmark files
+              run: |
+                echo "Generated benchmark files:"
+                find benchmark-results -type f -print
+
       # 2. إعداد .NET SDKs المدعومة
       - name: Setup .NET SDKs
         uses: actions/setup-dotnet@v4
