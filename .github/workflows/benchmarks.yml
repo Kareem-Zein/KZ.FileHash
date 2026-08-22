@@ -2,30 +2,31 @@ name: Performance Benchmarks
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
+
   pull_request:
-    branches: [ main ]
+    branches: [main]
+
   schedule:
-    - cron: '0 0 * * 0'  # كل يوم أحد منتصف الليل
-  workflow_dispatch:     # تشغيل يدوي من تبويب Actions
+    - cron: '0 0 * * 0' # كل يوم أحد منتصف الليل
+
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   benchmark:
     name: Run Benchmarks
     runs-on: ubuntu-latest
-    timeout-minutes: 60   # حد أقصى 60 دقيقة
-    
-    permissions:
-      contents: write     # لتحديث README (اختياري)
-      pull-requests: write
-      actions: read
+    timeout-minutes: 60
 
     steps:
       # 1. تحميل الكود من المستودع
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. إعداد .NET SDK مع كل الإصدارات المدعومة
+      # 2. إعداد .NET SDKs المدعومة
       - name: Setup .NET SDKs
         uses: actions/setup-dotnet@v4
         with:
@@ -42,82 +43,105 @@ jobs:
       - name: Build solution
         run: dotnet build -c Release --no-restore
 
-      # 5. تشغيل الـ Benchmarks على كل الإصدارات
-      - name: Run benchmarks (All Runtimes)
+      # 5. تشغيل الـ Benchmarks
+      - name: Run benchmarks
         run: |
-          mkdir -p benchmark-results
-          
-          dotnet run --project KZ.FileHash.Benchmarks/KZ.FileHash.Benchmarks.csproj -c Release -f net10.0 \
+          dotnet run \
+            --project KZ.FileHash.Benchmarks/KZ.FileHash.Benchmarks.csproj \
+            -c Release \
+            -f net10.0 \
+            -- \
             --filter "*" \
             --exporters Markdown \
-            --artifacts ./benchmark-results/net10.0
+            --artifacts ./benchmark-results
 
-      # 6. عرض قائمة الملفات المُنشأة
-      - name: List generated reports
-        run: ls -la benchmark-results/*/
+      # 6. عرض الملفات المُنشأة
+      - name: List generated benchmark files
+        run: |
+          echo "Generated benchmark files:"
+          find benchmark-results -type f -print
 
-      # 7. رفع النتائج كـ Artifacts (للتحميل اليدوي)
+      # 7. رفع النتائج كـ Artifact
       - name: Upload benchmark results
         uses: actions/upload-artifact@v4
         with:
           name: benchmark-reports
           path: benchmark-results/**/*.md
           retention-days: 30
+          if-no-files-found: error
 
-      # 8. (اختياري) تحديث README آلياً
+      # 8. تحديث README فقط عند Push على main
       - name: Update README with latest results
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
-          # استخرج جدول النتائج من أحدث تقرير (من .NET 10)
-          REPORT_FILE=$(ls -t benchmark-results/net10.0/*-report-github.md 2>/dev/null | head -1)
-          
-          if [ -f "$REPORT_FILE" ]; then
-            echo "Found report: $REPORT_FILE"
-            
-            # استخرج جدول النتائج
-            START=$(grep -n "| Method" "$REPORT_FILE" | head -1 | cut -d: -f1)
-            if [ -n "$START" ]; then
-              END=$(tail -n +$START "$REPORT_FILE" | grep -n "^$" | head -1 | cut -d: -f1)
-              if [ -z "$END" ]; then
-                END=$(wc -l < "$REPORT_FILE")
-              else
-                END=$((START + END - 1))
-              fi
-              
-              TABLE=$(sed -n "${START},${END}p" "$REPORT_FILE")
-              
-              # عدّل README.md
-              if [ -f "README.md" ]; then
-                # حذف القسم القديم بين العلامات
-                sed -i '/<!-- BENCHMARK-START -->/,/<!-- BENCHMARK-END -->/d' README.md
-                
-                # إضافة القسم الجديد
-                cat >> README.md << 'EOF'
-            
-            <!-- BENCHMARK-START -->
-            ## 📊 Performance Benchmarks
-            
-            *Automatically updated on: $(date -u +"%Y-%m-%d %H:%M UTC")*
-            
-            $(echo "$TABLE")
-            
-            > **Memory usage comparison:** KZ.FileHash uses up to 99.9% less memory than traditional methods.
-            <!-- BENCHMARK-END -->
-            EOF
-              fi
-            fi
-          fi
-        shell: bash
+          REPORT_FILE=$(find benchmark-results \
+            -type f \
+            -name '*-report-github.md' \
+            -print0 |
+            xargs -0 ls -t 2>/dev/null |
+            head -1)
 
-      # 9. (اختياري) إيداع التغييرات في README
+          if [ -z "$REPORT_FILE" ]; then
+            echo "No GitHub Markdown report found."
+            exit 1
+          fi
+
+          echo "Found report: $REPORT_FILE"
+
+          START=$(grep -n "^| Method" "$REPORT_FILE" | head -1 | cut -d: -f1)
+
+          if [ -z "$START" ]; then
+            echo "Benchmark table not found in report."
+            exit 1
+          fi
+
+          END=$(tail -n +"$START" "$REPORT_FILE" |
+            grep -n "^$" |
+            head -1 |
+            cut -d: -f1)
+
+          if [ -z "$END" ]; then
+            END=$(wc -l < "$REPORT_FILE")
+          else
+            END=$((START + END - 1))
+          fi
+
+          TABLE=$(sed -n "${START},${END}p" "$REPORT_FILE")
+
+          if [ ! -f "README.md" ]; then
+            echo "README.md not found."
+            exit 1
+          fi
+
+          # حذف نتائج الـ Benchmark القديمة
+          sed -i '/<!-- BENCHMARK-START -->/,/<!-- BENCHMARK-END -->/d' README.md
+
+          # إضافة النتائج الجديدة
+          {
+            echo
+            echo "<!-- BENCHMARK-START -->"
+            echo "## 📊 Performance Benchmarks"
+            echo
+            echo "*Automatically updated on: $(date -u +"%Y-%m-%d %H:%M UTC")*"
+            echo
+            echo "$TABLE"
+            echo
+            echo "> **Memory usage comparison:** KZ.FileHash uses significantly less memory than traditional methods that load the entire file into memory."
+            echo
+            echo "<!-- BENCHMARK-END -->"
+          } >> README.md
+
+      # 9. Commit التغييرات
       - name: Commit and push README changes
-        if: github.event_name == 'push'  # يشغل فقط عند الـ Push
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           if git diff --quiet README.md; then
             echo "No changes to README.md"
           else
             git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
             git add README.md
-            git commit -m "docs: update benchmark results [skip ci]"
+            git commit -m "docs: update benchmark results"
             git push
           fi
