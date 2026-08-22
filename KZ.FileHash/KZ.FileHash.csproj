@@ -25,7 +25,7 @@
 	<EnablePackageValidation>true</EnablePackageValidation>
 	<PublishRepositoryUrl>true</PublishRepositoryUrl>
 	<EmbedUntrackedSources>true</EmbedUntrackedSources>
-	<PackageReleaseNotes>$([System.IO.File]::ReadAllText("$(SolutionDir)CHANGELOG.md"))</PackageReleaseNotes>
+	<PackageReleaseNotes>$([System.IO.File]::ReadAllText("CHANGELOG.md"))</PackageReleaseNotes>
   </PropertyGroup>
 
 	<ItemGroup>
@@ -34,6 +34,10 @@
 	    <PackagePath>\</PackagePath>
 	  </None>
 	  <None Include="..\README.md">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
+	  <None Include="..\CHANGELOG.md">
 	    <Pack>True</Pack>
 	    <PackagePath>\</PackagePath>
 	  </None>
